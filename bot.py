@@ -5,8 +5,6 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, fil
 from functions import start, getID, registra_utente, inlinequery, verifica_utenti_autorizzati,check_inline
 import asyncio
 
-load_dotenv(".env")
-
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
