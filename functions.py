@@ -162,16 +162,30 @@ async def verifica_utenti_autorizzati(bot: Bot):
 
 
 async def lista_utenti(update: Update, context: CallbackContext):
+    if update.effective_user.id != int(os.getenv("ADMIN_ID")):
+        await update.message.reply_text("⛔ Non sei autorizzato a usare questo comando.")
+        return
+
     try:
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM "User" WHERE active = false')
         results = cursor.fetchall()
+        cursor.close()
 
-        for i in results:
-            print(i)
+        if not results:
+            await update.message.reply_text("✅ Tutti gli utenti sono già approvati.")
+            return
+
+        # Costruisci il messaggio
+        message = "👥 *Utenti in attesa di approvazione:*\n\n"
+        for telegram_id, nome, active in results:
+            message += f"• `{telegram_id}` — {nome}\n"
+
+        await update.message.reply_text(message, parse_mode="Markdown")
+
     except Exception as e:
-        print(e)
-
+        print(f"Errore in lista_utenti: {e}")
+        await update.message.reply_text("❌ Errore durante il recupero della lista utenti.")
 
 async def conferma_utenti(update: Update, context: CallbackContext):
     if update.effective_user.id != int(os.getenv("ADMIN_ID")):
