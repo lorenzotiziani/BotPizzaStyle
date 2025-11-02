@@ -5,8 +5,7 @@ import psycopg
 from email.message import EmailMessage
 from functools import wraps
 from telegram import Update, InlineQueryResultArticle, InputTextMessageContent, Bot
-from telegram.ext import ContextTypes
-
+from telegram.ext import ContextTypes, CallbackContext
 
 # PostgreSQL connection
 conn = psycopg.connect(os.getenv("DATABASE_URL"))
@@ -160,3 +159,45 @@ async def verifica_utenti_autorizzati(bot: Bot):
             print(f"Errore verifica utenti autorizzati: {e}")
 
         await asyncio.sleep(30)
+
+
+async def lista_utenti(update: Update, context: CallbackContext):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM "User" WHERE active = false')
+        results = cursor.fetchall()
+
+        for i in results:
+            print(i)
+    except Exception as e:
+        print(e)
+
+
+async def conferma_utenti(update: Update, context: CallbackContext):
+    if update.effective_user.id != int(os.getenv("ADMIN_ID")):
+        await update.message.reply_text("⛔ Non sei autorizzato a usare questo comando.")
+        return
+
+    try:
+        user_id = int(context.args[0])
+
+        cursor = conn.cursor()
+        cursor.execute('SELECT telegramId FROM "User" WHERE telegramId = %s', (user_id,))
+        row = cursor.fetchone()
+
+        if not row:
+            await update.message.reply_text("⚠️ Nessun utente trovato con questo ID.")
+        else:
+            cursor.execute(
+                'UPDATE "User" SET active = true, notified = false WHERE telegramId = %s',
+                (user_id,)
+            )
+            conn.commit()
+            await update.message.reply_text(f"✅ Utente {user_id} approvato correttamente.")
+        cursor.close()
+
+    except ValueError:
+        await update.message.reply_text("❗ L'ID deve essere un numero.")
+    except Exception as e:
+        print(f"Errore in conferma_utenti: {e}")
+        await update.message.reply_text("❌ Errore durante l'approvazione dell'utente.")

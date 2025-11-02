@@ -2,7 +2,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, InlineQueryHandler
-from functions import start, getID, registra_utente, inlinequery, verifica_utenti_autorizzati,check_inline
+from functions import start, getID, registra_utente, inlinequery, verifica_utenti_autorizzati,check_inline,lista_utenti,conferma_utenti
 import asyncio
 
 logging.basicConfig(
@@ -22,6 +22,8 @@ if __name__ == "__main__":
     application.add_handler(CommandHandler("id", getID))
     application.add_handler(CommandHandler("indirizzi", check_inline))
     application.add_handler(CommandHandler("register", registra_utente))
+    application.add_handler(CommandHandler("listaUtenti", lista_utenti))
+    application.add_handler(CommandHandler("confermaUtenti", conferma_utenti))
     application.add_handler(InlineQueryHandler(inlinequery))
 
     # Callback di startup per lanciare task ricorrente
