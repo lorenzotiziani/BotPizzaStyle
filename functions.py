@@ -168,7 +168,7 @@ async def lista_utenti(update: Update, context: CallbackContext):
 
     try:
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM "User" WHERE active = false')
+        cursor.execute('SELECT telegram_id, nome, active FROM "User" WHERE active = false')
         results = cursor.fetchall()
         cursor.close()
 
