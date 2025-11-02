@@ -168,7 +168,7 @@ async def lista_utenti(update: Update, context: CallbackContext):
 
     try:
         cursor = conn.cursor()
-        cursor.execute('SELECT telegram_id, nome, active FROM "User" WHERE active = false')
+        cursor.execute('SELECT telegramid, nominativo, active FROM "User" WHERE active = false')
         results = cursor.fetchall()
         cursor.close()
 
@@ -178,8 +178,8 @@ async def lista_utenti(update: Update, context: CallbackContext):
 
         # Costruisci il messaggio
         message = "👥 *Utenti in attesa di approvazione:*\n\n"
-        for telegram_id, nome, active in results:
-            message += f"• `{telegram_id}` — {nome}\n"
+        for telegramid, nominativo, active in results:
+            message += f"• `{telegramid}` — {nominativo}\n"
 
         await update.message.reply_text(message, parse_mode="Markdown")
 
